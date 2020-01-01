@@ -1,0 +1,19 @@
+{
+  "name": "lox",
+  "private": true,
+  "description": "learning to make interpreted programming language,",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsjzt/lox.git"
+  },
+  "author": "itsjzt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/itsjzt/lox/issues"
+  },
+  "homepage": "https://github.com/itsjzt/lox#readme"
+}
