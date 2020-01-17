@@ -32,6 +32,8 @@ const doubleCharSymbolNames = {
   "!=": "EXCLAMATION_EQUAL"
 };
 
+const numberLiterals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
+
 const singleCharSymbols = Object.keys(singleCharSymbolNames);
 const doubleCharSymbols = Object.keys(doubleCharSymbolNames);
 const whitespaces = [" ", "\t", "\n", "\r\n", "\r"];
@@ -75,9 +77,15 @@ function tokenize(source = "") {
     } else if (char.match(/[a-z|A-Z]/)) {
       // keywords
       index++;
-    } else if (char.match(/\d/)) {
+    } else if (char.match(/[0-9]/)) {
+      // cause 1 char is already number.that why it matched
+      let skipTill = 1;
+      while (numberLiterals.includes(source[index + skipTill])) {
+        skipTill++;
+      }
+      tokens.push("NUMBER");
       // number
-      index++;
+      index += skipTill;
     } else {
       // syntax error
       throw new Error(`Error: Invalid token, index: ${index} found: ${char}`);

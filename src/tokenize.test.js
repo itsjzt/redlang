@@ -7,7 +7,7 @@ const {
 } = require("./tokenize");
 
 test("whitespaces", () => {
-  for (const whitespace in whitespaces) {
+  for (const whitespace of whitespaces) {
     expect(tokenize(whitespace)).toStrictEqual([]);
   }
   expect(tokenize("\r\n\t")).toStrictEqual([]);
@@ -34,11 +34,16 @@ test("single character symbols", () => {
   }
 });
 
-test("invalid characters", () => {
-  const invalidCharacters = "@#$^&|?~`".split("");
-  // TODO:
-  for (const char of invalidCharacters) {
-    console.log({ char });
-    expect(tokenize(char)).toThrowError();
-  }
+test("number literals", () => {
+  expect(tokenize("1234")).toStrictEqual(["NUMBER"]);
+  expect(tokenize("12.3490")).toStrictEqual(["NUMBER"]);
 });
+
+// test("invalid characters", () => {
+//   const invalidCharacters = "@#$^&|?~`".split("");
+//   // TODO:
+//   for (const char of invalidCharacters) {
+//     console.log({ char });
+//     expect(tokenize(char)).toThrowError();
+//   }
+// });
