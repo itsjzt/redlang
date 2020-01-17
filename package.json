@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/itsjzt/lox/issues"
   },
-  "homepage": "https://github.com/itsjzt/lox#readme"
+  "homepage": "https://github.com/itsjzt/lox#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
 }
