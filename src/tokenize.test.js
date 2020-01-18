@@ -3,7 +3,8 @@ const {
   tokenize,
   singleCharSymbolNames,
   doubleCharSymbolNames,
-  whitespaces
+  whitespaces,
+  keywords
 } = require("./tokenize");
 
 test("whitespaces", () => {
@@ -46,6 +47,14 @@ test("strings", () => {
   expect(
     tokenize(`"this is a proper sentence \n with \t newlines and tabs"`)
   ).toStrictEqual(["STRING"]);
+});
+
+test("keywords", () => {
+  for (let keyword of keywords) {
+    expect(tokenize(keyword)).toStrictEqual([
+      keyword.toUpperCase().replace(" ", "_")
+    ]);
+  }
 });
 
 // test("invalid characters", () => {

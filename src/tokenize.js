@@ -33,6 +33,23 @@ const doubleCharSymbolNames = {
 
 const numberLiterals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
+const keywords = [
+  "for",
+  // else if should be above else/if
+  "else if",
+  "if",
+  "else",
+  "while",
+  "import",
+  "from",
+  "function",
+  "return",
+  "var",
+  "true",
+  "false",
+  "null"
+];
+
 const singleCharSymbols = Object.keys(singleCharSymbolNames);
 const doubleCharSymbols = Object.keys(doubleCharSymbolNames);
 const whitespaces = [" ", "\t", "\n", "\r\n", "\r"];
@@ -85,7 +102,16 @@ function tokenize(source = "") {
       index += char.length;
     } else if (char.match(/[a-z|A-Z]/)) {
       // keywords
-      index++;
+      const afterString = source.substring(index);
+      const currentKeyword = keywords.find(k => afterString.startsWith(k));
+      if (currentKeyword) {
+        tokens.push(currentKeyword.toUpperCase().replace(" ", "_"));
+        index += currentKeyword.length;
+      } else {
+        throw new Error(
+          `Error: Invalid keyword index: ${index} found: ${afterString.split}`
+        );
+      }
     } else if (char.match(/[0-9]/)) {
       // cause 1 char is already number.that why it matched
       let skipTill = 1;
@@ -122,5 +148,6 @@ module.exports = {
   singleCharSymbolNames,
   singleCharSymbols,
   doubleCharSymbols,
-  whitespaces
+  whitespaces,
+  keywords
 };
