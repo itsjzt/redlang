@@ -12,7 +12,6 @@ const singleCharSymbolNames = {
   ";": "SEMICOLON",
   ".": "DOT",
   ":": "COLON",
-  '"': "DOUBLE_QUOTE",
   ")": "PARENTHESIS_CLOSE",
   "(": "PARENTTHESIS_OPEN",
   "[": "BRACKET_OPEN",
@@ -63,6 +62,16 @@ function tokenize(source = "") {
         toFind: "*/"
       });
       index += skipTill;
+    } else if (char === '"') {
+      // because we want next occurance
+      const nextIndex = index + 1;
+      const skipTill = findIndexAfter({
+        string: source,
+        after: nextIndex,
+        toFind: '"'
+      });
+      tokens.push("STRING");
+      index = nextIndex + skipTill;
     } else if (doubleCharSymbols.includes(char + nextChar)) {
       // 2 char symbols before 1 char
       const symbol = char + nextChar;

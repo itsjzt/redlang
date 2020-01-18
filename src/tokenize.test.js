@@ -37,6 +37,15 @@ test("single character symbols", () => {
 test("number literals", () => {
   expect(tokenize("1234")).toStrictEqual(["NUMBER"]);
   expect(tokenize("12.3490")).toStrictEqual(["NUMBER"]);
+  // TODO: test .1234 abd 1234.
+});
+
+test("strings", () => {
+  expect(tokenize(`"hello"`)).toStrictEqual(["STRING"]);
+  expect(tokenize(`"l"`)).toStrictEqual(["STRING"]);
+  expect(
+    tokenize(`"this is a proper sentence \n with \t newlines and tabs"`)
+  ).toStrictEqual(["STRING"]);
 });
 
 // test("invalid characters", () => {
