@@ -1,17 +1,18 @@
-import { readFile } from "./utils/readFile";
-import { readLine } from "./utils/readLine";
+import { readFile } from "./modules/fs/readFile";
+import { readLine } from "./modules/io/readLine";
 import { scanTokens } from "./modules/scanner/scanTokens";
 
 async function main() {
-  const args = process.argv;
+  const [_runtime, _binName, commandOrFile] = process.argv;
+  const commandTrimmed = commandOrFile.trim();
 
-  if (args.length > 2) {
+  if (commandTrimmed === "--help") {
     console.log("Usage: lox [script]");
     return process.exit(64);
   }
 
-  if (args.length > 2) {
-    const fileSource = await readFile(args[1]);
+  if (commandTrimmed) {
+    const fileSource = await readFile(commandTrimmed);
     return run(fileSource);
   }
 

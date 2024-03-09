@@ -1,6 +1,6 @@
 export let hadError = false;
 
-export function error(line: number, message: string) {
+export function reportError(line: number, message: string) {
   report(line, "", message);
 }
 
