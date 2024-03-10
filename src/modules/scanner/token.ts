@@ -1,11 +1,11 @@
 import { TokenType } from "./tokenTypes";
 
-export interface Token {
+export type Token = {
   type: TokenType;
   lexeme: string | null;
   literal: any | null;
   line: number;
-}
+};
 
 export function createToken(
   type: TokenType,
