@@ -1,10 +1,13 @@
-import { readFile } from "./modules/fs/readFile";
+import { readFile } from "./modules/io/readFile";
 import { readLine } from "./modules/io/readLine";
+import { parseTokens } from "./modules/parser/parseTokens";
+import { prettifyAst } from "./modules/parser/prettifyAst";
 import { scanTokens } from "./modules/scanner/scanTokens";
+import { hadError } from "./throwError";
 
 async function main() {
   const [_runtime, _binName, commandOrFile] = process.argv;
-  const commandTrimmed = commandOrFile.trim();
+  const commandTrimmed = commandOrFile?.trim();
 
   if (commandTrimmed === "--help") {
     console.log("Usage: lox [script]");
@@ -25,8 +28,15 @@ async function main() {
 
 function run(source: string) {
   const tokens = scanTokens(source);
+  const ast = parseTokens(tokens);
 
-  tokens.forEach((token) => console.log(token));
+  if (hadError) {
+    return;
+  }
+
+  if (ast) {
+    console.log(prettifyAst(ast));
+  }
 }
 
 main();

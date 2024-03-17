@@ -1,4 +1,4 @@
-import { reportError } from "../../reportError";
+import { throwScanningError } from "../../throwError";
 import { checkIsAlpha } from "./checkIsAlpha";
 import { consumeComment } from "./consumeComment";
 import { consumeDigit } from "./consumeDigit";
@@ -144,7 +144,7 @@ export function scanToken({
 
         return genReport(offset);
       }
-      reportError(currentLine, "Unexpected Character");
+      throwScanningError(currentLine, "Unexpected Character");
       return genReport();
     }
   }

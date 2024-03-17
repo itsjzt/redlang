@@ -1,7 +1,12 @@
-export async function readLine(): Promise<string> {
-  process.stdout.write(">>> ");
+const nodeReadline = require("node:readline").createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-  return new Promise((resolve, reject) => {
-    process.stdin.on("data", (lineBuffer) => resolve(lineBuffer.toString()));
-  });
+export async function readLine(): Promise<string> {
+  return new Promise((resolve) =>
+    nodeReadline.question(">>> ", (input: string) => {
+      resolve(input);
+    })
+  );
 }

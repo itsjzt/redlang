@@ -1,4 +1,4 @@
-import { reportError } from "../../reportError";
+import { throwScanningError } from "../../throwError";
 import { ScanTokenOutput } from "./scannerInterface";
 
 export function consumeString(
@@ -25,6 +25,6 @@ export function consumeString(
     }
   }
 
-  reportError(currentLine, "Unterminated string");
+  throwScanningError(currentLine, "Unterminated string");
   return null;
 }
