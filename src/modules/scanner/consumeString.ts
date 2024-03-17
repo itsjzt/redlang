@@ -14,7 +14,6 @@ export function consumeString(
     i++
   ) {
     const currentChar = source[i];
-    console.log({ currentChar, i });
 
     if (currentChar === "\n") {
       newlinesConsumed += 1;

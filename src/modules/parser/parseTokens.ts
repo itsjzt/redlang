@@ -3,11 +3,21 @@ import { Token } from "../scanner/token";
 import { TokenType } from "../scanner/tokenTypes";
 import {
   Expr,
+  createAssignExpr,
   createBinaryExpr,
   createGroupingExpr,
   createLiteralExpr,
   createUnaryExpr,
+  createVariableExpr,
 } from "./expr";
+import {
+  Stmt,
+  VarStmt,
+  createBlockStmt,
+  createExprStatement,
+  createPrintStatement,
+  createVarStatement,
+} from "./stmt";
 
 interface IParserState {
   currentTokenIndex: number;
@@ -21,16 +31,101 @@ export function parseTokens(tokens: Token[]) {
     currentTokenIndex: 0,
     tokens: tokens,
   };
+  let statements: Stmt[] = [];
 
+  while (!isAtEnd()) {
+    let stmt = declaration();
+    if (stmt) {
+      statements.push(stmt);
+    }
+  }
+
+  return statements;
+}
+
+function declaration(): Stmt | null {
   try {
-    return expression();
+    if (match("VAR")) {
+      return varDeclaration();
+    }
+
+    return statement();
   } catch (e) {
+    synchronize();
     return null;
   }
 }
 
+function varDeclaration(): VarStmt {
+  let name = consume("IDENTIFIER", "Expect variable name");
+  let initializer: Expr | null = null;
+
+  if (match("EQUAL")) {
+    initializer = expression();
+  }
+
+  consume("SEMICOLON", "Expect ';' after declaration.");
+
+  return createVarStatement(name, initializer);
+}
+
+function statement(): Stmt {
+  if (match("PRINT")) {
+    return printStatement();
+  }
+
+  if (match("LEFT_BRACE")) {
+    return createBlockStmt(block());
+  }
+
+  return expressionStatement();
+}
+
+function block(): Stmt[] {
+  let statements: Stmt[] = [];
+
+  while (!check("RIGHT_BRACE") && !isAtEnd()) {
+    statements.push(declaration()!);
+  }
+
+  consume("RIGHT_BRACE", "Expect '}' after block.");
+
+  return statements;
+}
+
+function printStatement() {
+  let value = expression();
+  consume("SEMICOLON", "Expect ';' after value");
+
+  return createPrintStatement(value);
+}
+
+function expressionStatement() {
+  let expr = expression();
+  consume("SEMICOLON", "Expect ';' after expression");
+  return createExprStatement(expr);
+}
+
 function expression(): Expr {
-  return equality();
+  return assignment();
+}
+
+function assignment(): Expr {
+  const expr = equality();
+
+  if (match("EQUAL")) {
+    let equal = previous();
+    let value = assignment();
+
+    if (expr.type === "Variable") {
+      let name = expr.name;
+      return createAssignExpr(name, value);
+    }
+
+    throw throwParsingError(equal, "Invalid assignment target.");
+  }
+
+  return expr;
 }
 
 function equality(): Expr {
@@ -107,6 +202,10 @@ function primary(): Expr {
     return createLiteralExpr(previous().literal);
   }
 
+  if (match("IDENTIFIER")) {
+    return createVariableExpr(previous());
+  }
+
   if (match("LEFT_PAREN")) {
     let expr = expression();
     consume("RIGHT_PAREN", "Expect ')' after expression.");
@@ -116,12 +215,12 @@ function primary(): Expr {
   throw throwParsingError(peek(), "Expected expression.");
 }
 
-function consume(type: TokenType, errorMessage: string) {
+function consume(type: TokenType, errorMessage: string): Token {
   if (check(type)) {
     return advance();
   }
 
-  return throwParsingError(peek(), errorMessage);
+  throw throwParsingError(peek(), errorMessage);
 }
 
 function match(...types: TokenType[]) {
@@ -166,7 +265,7 @@ function previous(): Token {
 function synchronize() {
   advance();
 
-  while (isAtEnd()) {
+  while (!isAtEnd()) {
     if (previous().type == "SEMICOLON") return;
 
     switch (peek().type) {

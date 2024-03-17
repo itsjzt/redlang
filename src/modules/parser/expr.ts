@@ -1,4 +1,5 @@
 import { Token } from "../scanner/token";
+import { ExprStmt, PrintStmt } from "./stmt";
 
 export type BinaryExpr = {
   type: "Binary";
@@ -23,7 +24,39 @@ export type UnaryExpr = {
   operator: Token;
 };
 
-export type Expr = BinaryExpr | UnaryExpr | LiteralExpr | GroupingExpr;
+export type VariableExpr = {
+  type: "Variable";
+  name: Token;
+};
+
+export type AssignExpr = {
+  type: "Assign";
+  name: Token;
+  value: Expr;
+};
+
+export type Expr =
+  | BinaryExpr
+  | UnaryExpr
+  | LiteralExpr
+  | GroupingExpr
+  | VariableExpr
+  | AssignExpr;
+
+export function createAssignExpr(name: Token, value: Expr): AssignExpr {
+  return {
+    name: name,
+    type: "Assign",
+    value,
+  };
+}
+
+export function createVariableExpr(name: Token): VariableExpr {
+  return {
+    name: name,
+    type: "Variable",
+  };
+}
 
 export function createBinaryExpr(
   operator: Token,
