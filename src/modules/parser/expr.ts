@@ -35,13 +35,34 @@ export type AssignExpr = {
   value: Expr;
 };
 
+export type LogicalExpr = {
+  type: "Logical";
+  left: Expr;
+  right: Expr;
+  operator: Token;
+};
+
 export type Expr =
   | BinaryExpr
   | UnaryExpr
   | LiteralExpr
   | GroupingExpr
   | VariableExpr
-  | AssignExpr;
+  | AssignExpr
+  | LogicalExpr;
+
+export function createLogicalExpr(
+  operator: Token,
+  left: Expr,
+  right: Expr
+): LogicalExpr {
+  return {
+    type: "Logical",
+    left,
+    right,
+    operator,
+  };
+}
 
 export function createAssignExpr(name: Token, value: Expr): AssignExpr {
   return {

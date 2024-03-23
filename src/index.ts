@@ -1,10 +1,8 @@
-import { interpretAst } from "./modules/interpreter/interpretAst";
+import { interpret } from "./modules/interpreter/interpret";
 import { readFile } from "./modules/io/readFile";
 import { readLine } from "./modules/io/readLine";
-import { Expr } from "./modules/parser/expr";
 import { Stmt } from "./modules/parser/stmt";
-import { parseTokens } from "./modules/parser/parseTokens";
-import { prettifyAst } from "./modules/parser/prettifyAst";
+import { parse } from "./modules/parser/parse";
 import { scanTokens } from "./modules/scanner/scanTokens";
 import { hadError, hadRuntimeError } from "./throwError";
 
@@ -37,18 +35,18 @@ async function main() {
 
 function run(source: string) {
   const tokens = scanTokens(source);
-  const ast = parseTokens(tokens);
+  const ast = parse(tokens);
 
   if (hadError || !ast) {
     return;
   }
 
-  interpret(ast);
+  interpretWithCatch(ast);
 }
 
-function interpret(expr: Stmt[]) {
+function interpretWithCatch(expr: Stmt[]) {
   try {
-    interpretAst(expr);
+    interpret(expr);
   } catch (e) {
     // console.log()
   }

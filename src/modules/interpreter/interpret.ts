@@ -1,12 +1,18 @@
 import { throwRuntimeError } from "../../throwError";
-import { BinaryExpr, Expr, UnaryExpr, VariableExpr } from "../parser/expr";
-import { BlockStmt, Stmt, VarStmt } from "../parser/stmt";
+import {
+  BinaryExpr,
+  Expr,
+  LogicalExpr,
+  UnaryExpr,
+  VariableExpr,
+} from "../parser/expr";
+import { Stmt, VarStmt } from "../parser/stmt";
 import { Token } from "../scanner/token";
-import { VariableStore } from "./variableStore";
+import { VariableStore } from "./VariableStore";
 
 let variableStore = new VariableStore(null);
 
-export function interpretAst(statements: Stmt[]) {
+export function interpret(statements: Stmt[]) {
   for (let stmt of statements) {
     evaluateStmt(stmt);
   }
@@ -26,6 +32,32 @@ function evaluateStmt(stmt: Stmt): null {
     case "BlockStmt":
       evaluateBlock(stmt.statements, new VariableStore(variableStore));
       break;
+    case "IfStmt":
+      evaluateIf(stmt.condition, stmt.thenBranch, stmt.elseBranch);
+      break;
+    case "WhileStmt":
+      evaluateWhile(stmt.condition, stmt.body);
+      break;
+  }
+
+  return null;
+}
+
+function evaluateWhile(condition: Expr, body: Stmt) {
+  while (isTruthy(evaluateExpr(condition))) {
+    evaluateStmt(body);
+  }
+}
+
+function evaluateIf(
+  condition: Expr,
+  thenBranch: Stmt,
+  elseBranch: Stmt | null
+) {
+  if (isTruthy(evaluateExpr(condition))) {
+    evaluateStmt(thenBranch);
+  } else if (elseBranch !== null) {
+    evaluateStmt(elseBranch);
   }
 
   return null;
@@ -86,9 +118,27 @@ function evaluateExpr(expr: Expr) {
     case "Assign": {
       return evaluateAssignExpression(expr.name, expr.value);
     }
+    case "Logical":
+      return evaluateLogicalExpression(expr);
     default:
       return null;
   }
+}
+
+function evaluateLogicalExpression(expr: LogicalExpr): any {
+  let left = evaluateExpr(expr.left);
+
+  if (expr.operator.type === "OR") {
+    if (isTruthy(left)) {
+      return left;
+    }
+  } else {
+    if (!isTruthy(left)) {
+      return left;
+    }
+  }
+
+  return evaluateExpr(expr.right);
 }
 
 function evaluateAssignExpression(name: Token, value: Expr): any {

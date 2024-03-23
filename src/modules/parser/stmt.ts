@@ -22,7 +22,47 @@ export type BlockStmt = {
   statements: Stmt[];
 };
 
-export type Stmt = ExprStmt | PrintStmt | VarStmt | BlockStmt;
+export type IfStmt = {
+  type: "IfStmt";
+  condition: Expr;
+  thenBranch: Stmt;
+  elseBranch: Stmt | null;
+};
+
+export type WhileStmt = {
+  type: "WhileStmt";
+  condition: Expr;
+  body: Stmt;
+};
+
+export type Stmt =
+  | ExprStmt
+  | PrintStmt
+  | VarStmt
+  | BlockStmt
+  | IfStmt
+  | WhileStmt;
+
+export function createWhileStmt(condition: Expr, body: Stmt): WhileStmt {
+  return {
+    type: "WhileStmt",
+    condition,
+    body,
+  };
+}
+
+export function createIfStmt(
+  condition: Expr,
+  thenBranch: Stmt,
+  elseBranch: Stmt | null
+): IfStmt {
+  return {
+    type: "IfStmt",
+    condition,
+    thenBranch,
+    elseBranch,
+  };
+}
 
 export function createBlockStmt(statements: Stmt[]): BlockStmt {
   return {
