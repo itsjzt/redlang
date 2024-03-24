@@ -7,13 +7,7 @@ import {
   UnaryExpr,
   VariableExpr,
 } from "../parser/expr";
-import {
-  FunctionStmt,
-  ReturnStmt,
-  Stmt,
-  VarStmt,
-  createFunctionStmt,
-} from "../parser/stmt";
+import { FunctionStmt, ReturnStmt, Stmt, VarStmt } from "../parser/stmt";
 import { Token } from "../scanner/token";
 import { LoxFunction, createLoxCallable, isLoxCallable } from "./LoxCallable";
 import { VariableStore } from "./VariableStore";
@@ -179,7 +173,7 @@ function evaluateExpression(expr: Expr) {
   }
 }
 
-function evaluateCallExpression(expr: CallExpr) {
+function evaluateCallExpression(expr: CallExpr): any {
   let callee = evaluateExpression(expr.callee);
 
   let args = expr.arguments.map((arg) => evaluateExpression(arg));
@@ -196,7 +190,7 @@ function evaluateCallExpression(expr: CallExpr) {
   }
 
   const interpreter = { executeBlock: evaluateBlock, variableStore };
-  callee.call(interpreter, args);
+  return callee.call(interpreter, args);
 }
 
 function evaluateLogicalExpression(expr: LogicalExpr): any {
