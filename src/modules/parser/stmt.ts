@@ -42,6 +42,12 @@ export type FunctionStmt = {
   body: Stmt[];
 };
 
+export type ReturnStmt = {
+  type: "ReturnStmt";
+  keyword: Token;
+  value: Expr | null;
+};
+
 export type Stmt =
   | ExprStmt
   | PrintStmt
@@ -49,7 +55,19 @@ export type Stmt =
   | BlockStmt
   | IfStmt
   | WhileStmt
-  | FunctionStmt;
+  | FunctionStmt
+  | ReturnStmt;
+
+export function createReturnStmt(
+  keyword: Token,
+  value: Expr | null
+): ReturnStmt {
+  return {
+    type: "ReturnStmt",
+    keyword,
+    value,
+  };
+}
 
 export function createFunctionStmt(
   name: Token,

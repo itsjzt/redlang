@@ -60,7 +60,15 @@ export class LoxFunction implements LoxCallable {
       localStore.define(param.lexeme!, args[index]);
     });
 
-    interpreter.executeBlock(this.declaration.body, localStore);
+    try {
+      interpreter.executeBlock(this.declaration.body, localStore);
+    } catch (e: unknown) {
+      if (e && typeof e === "object" && "type" in e && "value" in e) {
+        return e.value;
+      }
+
+      throw e;
+    }
   }
 
   toString() {

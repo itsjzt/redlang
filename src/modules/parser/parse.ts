@@ -18,6 +18,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   VarStmt,
   WhileStmt,
@@ -26,6 +27,7 @@ import {
   createFunctionStmt,
   createIfStmt,
   createPrintStatement,
+  createReturnStmt,
   createVarStatement,
   createWhileStmt,
 } from "./stmt";
@@ -113,9 +115,9 @@ function statement(): Stmt {
     return ifStatement();
   }
 
-  // if (match("FOR")) {
-  //   return forStatement();
-  // }
+  if (match("RETURN")) {
+    return returnStatement();
+  }
 
   if (match("WHILE")) {
     return whileStatement();
@@ -132,43 +134,17 @@ function statement(): Stmt {
   return expressionStatement();
 }
 
-// function forStatement(): WhileStmt {
-//   consume("LEFT_PAREN", "Expect '(' after for.");
+function returnStatement(): ReturnStmt {
+  let keyword = previous();
+  let value = null;
 
-//   let initializer;
-//   if (match("SEMICOLON")) {
-//     initializer = null;
-//   } else if ("VAR") {
-//     initializer = varDeclaration();
-//   } else {
-//     initializer = expressionStatement();
-//   }
+  if (!check("SEMICOLON")) {
+    value = expression();
+  }
 
-//   let condition: Expr = createLiteralExpr(true);
-
-//   if (!check("SEMICOLON")) {
-//     expression();
-//   }
-
-//   consume("SEMICOLON", "Expect ';' after loop condition.");
-
-//   let increment = null;
-
-//   if (!check("RIGHT_PAREN")) {
-//     increment = expression();
-//   }
-
-//   consume("RIGHT_PAREN", "Expect ')' after for clauses.");
-
-//   let body = statement();
-
-//   if (increment !== null) {
-//     body = createBlockStmt([body, createExprStatement(increment)]);
-//   }
-
-//   return createWhileStmt(condition, body);
-//   // BOOKMARK: 9.5.1
-// }
+  consume("SEMICOLON", "Expect ';' after return value.");
+  return createReturnStmt(keyword, value);
+}
 
 function whileStatement(): WhileStmt {
   consume("LEFT_PAREN", "Expect '(' after while.");

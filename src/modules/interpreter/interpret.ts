@@ -9,6 +9,7 @@ import {
 } from "../parser/expr";
 import {
   FunctionStmt,
+  ReturnStmt,
   Stmt,
   VarStmt,
   createFunctionStmt,
@@ -66,9 +67,21 @@ function evaluateStmt(stmt: Stmt): null {
     case "FunctionStmt":
       evaluateFunctionDeclaration(stmt);
       break;
+    case "ReturnStmt":
+      evaluateReturn(stmt);
+      break;
   }
 
   return null;
+}
+
+function evaluateReturn(stmt: ReturnStmt) {
+  let value = null;
+  if (stmt.value !== null) {
+    value = evaluateExpression(stmt.value);
+  }
+
+  throw { type: "ReturnValue", value };
 }
 
 function evaluateFunctionDeclaration(stmt: FunctionStmt): null {
