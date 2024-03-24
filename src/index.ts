@@ -37,6 +37,8 @@ function run(source: string) {
   const tokens = scanTokens(source);
   const ast = parse(tokens);
 
+  // console.log(JSON.stringify(ast, null, 2));
+
   if (hadError || !ast) {
     return;
   }

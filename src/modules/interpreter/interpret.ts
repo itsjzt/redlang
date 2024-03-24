@@ -1,16 +1,27 @@
 import { throwRuntimeError } from "../../throwError";
 import {
   BinaryExpr,
+  CallExpr,
   Expr,
   LogicalExpr,
   UnaryExpr,
   VariableExpr,
 } from "../parser/expr";
-import { Stmt, VarStmt } from "../parser/stmt";
+import {
+  FunctionStmt,
+  Stmt,
+  VarStmt,
+  createFunctionStmt,
+} from "../parser/stmt";
 import { Token } from "../scanner/token";
+import { LoxFunction, createLoxCallable, isLoxCallable } from "./LoxCallable";
 import { VariableStore } from "./VariableStore";
 
-let variableStore = new VariableStore(null);
+let globalVariableStore = new VariableStore(null);
+let variableStore = globalVariableStore;
+
+// init global variable store with inbuilt functions
+initGlobalFunctions();
 
 export function interpret(statements: Stmt[]) {
   for (let stmt of statements) {
@@ -18,10 +29,24 @@ export function interpret(statements: Stmt[]) {
   }
 }
 
+function initGlobalFunctions() {
+  variableStore.define(
+    "clock",
+    createLoxCallable({
+      arity() {
+        return 0;
+      },
+      call() {
+        return Date.now() / 1000;
+      },
+    })
+  );
+}
+
 function evaluateStmt(stmt: Stmt): null {
   switch (stmt.type) {
     case "ExprStmt":
-      evaluateExpr(stmt.expression);
+      evaluateExpression(stmt.expression);
       break;
     case "PrintStmt":
       evaluatePrint(stmt.expression);
@@ -38,23 +63,33 @@ function evaluateStmt(stmt: Stmt): null {
     case "WhileStmt":
       evaluateWhile(stmt.condition, stmt.body);
       break;
+    case "FunctionStmt":
+      evaluateFunctionDeclaration(stmt);
+      break;
   }
 
   return null;
 }
 
-function evaluateWhile(condition: Expr, body: Stmt) {
-  while (isTruthy(evaluateExpr(condition))) {
+function evaluateFunctionDeclaration(stmt: FunctionStmt): null {
+  let fn = new LoxFunction(stmt);
+  variableStore.define(stmt.name.lexeme!, fn);
+  return null;
+}
+
+function evaluateWhile(condition: Expr, body: Stmt): null {
+  while (isTruthy(evaluateExpression(condition))) {
     evaluateStmt(body);
   }
+  return null;
 }
 
 function evaluateIf(
   condition: Expr,
   thenBranch: Stmt,
   elseBranch: Stmt | null
-) {
-  if (isTruthy(evaluateExpr(condition))) {
+): null {
+  if (isTruthy(evaluateExpression(condition))) {
     evaluateStmt(thenBranch);
   } else if (elseBranch !== null) {
     evaluateStmt(elseBranch);
@@ -63,7 +98,7 @@ function evaluateIf(
   return null;
 }
 
-function evaluateBlock(stmts: Stmt[], environment: VariableStore) {
+function evaluateBlock(stmts: Stmt[], environment: VariableStore): null {
   let previousEnvironment = variableStore;
   try {
     variableStore = environment;
@@ -73,13 +108,15 @@ function evaluateBlock(stmts: Stmt[], environment: VariableStore) {
   } finally {
     variableStore = previousEnvironment;
   }
+
+  return null;
 }
 
 function evaluateDeclaration(stmt: VarStmt): null {
   let value = null;
 
   if (stmt.initializer) {
-    value = evaluateExpr(stmt.initializer);
+    value = evaluateExpression(stmt.initializer);
   }
 
   variableStore.define(stmt.name.lexeme!, value);
@@ -92,13 +129,13 @@ function evaluateVariableExpression(expr: VariableExpr) {
 }
 
 function evaluatePrint(expr: Expr): null {
-  const value = evaluateExpr(expr);
+  const value = evaluateExpression(expr);
 
   console.log(value);
   return null;
 }
 
-function evaluateExpr(expr: Expr) {
+function evaluateExpression(expr: Expr) {
   switch (expr.type) {
     case "Literal": {
       return expr.value;
@@ -107,7 +144,7 @@ function evaluateExpr(expr: Expr) {
       return evaluateUnaryOperator(expr);
     }
     case "Group": {
-      return evaluateExpr(expr.expr);
+      return evaluateExpression(expr.expr);
     }
     case "Binary": {
       return evaluateBinaryOperator(expr);
@@ -118,15 +155,39 @@ function evaluateExpr(expr: Expr) {
     case "Assign": {
       return evaluateAssignExpression(expr.name, expr.value);
     }
-    case "Logical":
+    case "Logical": {
       return evaluateLogicalExpression(expr);
+    }
+    case "Call": {
+      return evaluateCallExpression(expr);
+    }
     default:
       return null;
   }
 }
 
+function evaluateCallExpression(expr: CallExpr) {
+  let callee = evaluateExpression(expr.callee);
+
+  let args = expr.arguments.map((arg) => evaluateExpression(arg));
+
+  if (!isLoxCallable(callee)) {
+    throw throwRuntimeError(expr.paren, "Can only call functions or classes.");
+  }
+
+  if (args.length !== callee.arity()) {
+    throw throwRuntimeError(
+      expr.paren,
+      `Expected ${callee.arity} but got ${args.length} arguments.`
+    );
+  }
+
+  const interpreter = { executeBlock: evaluateBlock, variableStore };
+  callee.call(interpreter, args);
+}
+
 function evaluateLogicalExpression(expr: LogicalExpr): any {
-  let left = evaluateExpr(expr.left);
+  let left = evaluateExpression(expr.left);
 
   if (expr.operator.type === "OR") {
     if (isTruthy(left)) {
@@ -138,19 +199,19 @@ function evaluateLogicalExpression(expr: LogicalExpr): any {
     }
   }
 
-  return evaluateExpr(expr.right);
+  return evaluateExpression(expr.right);
 }
 
 function evaluateAssignExpression(name: Token, value: Expr): any {
   if (variableStore.contains(name)) {
-    return variableStore.assign(name, evaluateExpr(value));
+    return variableStore.assign(name, evaluateExpression(value));
   }
 
   throw throwRuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
 function evaluateUnaryOperator(expr: UnaryExpr): null | boolean | any {
-  const right = evaluateExpr(expr.right);
+  const right = evaluateExpression(expr.right);
 
   if (expr.operator.type === "MINUS") {
     checkOperandIsNumber(expr.operator, expr.right);
@@ -177,8 +238,8 @@ function checkOperandsAreNumber(operator: Token, left: any, right: any) {
 }
 
 function evaluateBinaryOperator(expr: BinaryExpr): null | any {
-  const left: any = evaluateExpr(expr.left);
-  const right: any = evaluateExpr(expr.right);
+  const left: any = evaluateExpression(expr.left);
+  const right: any = evaluateExpression(expr.right);
 
   switch (expr.operator.type) {
     case "MINUS":

@@ -2,9 +2,11 @@ import { throwParsingError } from "../../throwError";
 import { Token } from "../scanner/token";
 import { TokenType } from "../scanner/tokenTypes";
 import {
+  CallExpr,
   Expr,
   createAssignExpr,
   createBinaryExpr,
+  createCallExpr,
   createGroupingExpr,
   createLiteralExpr,
   createLogicalExpr,
@@ -13,6 +15,7 @@ import {
 } from "./expr";
 import {
   ExprStmt,
+  FunctionStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -20,6 +23,7 @@ import {
   WhileStmt,
   createBlockStmt,
   createExprStatement,
+  createFunctionStmt,
   createIfStmt,
   createPrintStatement,
   createVarStatement,
@@ -52,6 +56,10 @@ export function parse(tokens: Token[]) {
 
 function declaration(): Stmt | null {
   try {
+    if (match("FUN")) {
+      return functionDeclaration("function");
+    }
+
     if (match("VAR")) {
       return varDeclaration();
     }
@@ -61,6 +69,30 @@ function declaration(): Stmt | null {
     synchronize();
     return null;
   }
+}
+
+function functionDeclaration(kind: string): FunctionStmt {
+  let name = consume("IDENTIFIER", `Expect ${kind} name.`);
+  consume("LEFT_PAREN", `Expect '(' after ${kind} name`);
+
+  let params: Token[] = [];
+
+  if (!check("RIGHT_PAREN")) {
+    do {
+      if (params.length >= 255) {
+        throwParsingError(peek(), "Can't have more than 255 parameters");
+      }
+
+      params.push(consume("IDENTIFIER", "Expect parameter name."));
+    } while (match("COMMA"));
+  }
+
+  consume("RIGHT_PAREN", "Expect ')' after parameters");
+
+  consume("LEFT_BRACE", `Expect '{' before ${kind} body.`);
+  let body = block();
+
+  return createFunctionStmt(name, params, body);
 }
 
 function varDeclaration(): VarStmt {
@@ -293,7 +325,38 @@ function unary(): Expr {
     return createUnaryExpr(operator, right);
   }
 
-  return primary();
+  return call();
+}
+
+function call(): Expr {
+  let expr = primary();
+
+  while (true) {
+    if (match("LEFT_PAREN")) {
+      expr = finishCall(expr);
+    } else {
+      break;
+    }
+  }
+
+  return expr;
+}
+
+function finishCall(callee: Expr): CallExpr {
+  let args = [];
+
+  if (!check("RIGHT_PAREN")) {
+    do {
+      if (args.length >= 255) {
+        throwParsingError(peek(), "Can't have more than 255 arguments.");
+      }
+      args.push(expression());
+    } while (match("COMMA"));
+  }
+
+  let paren = consume("RIGHT_PAREN", "Expect ')' after arguments.");
+
+  return createCallExpr(callee, paren, args);
 }
 
 function primary(): Expr {

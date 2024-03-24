@@ -42,6 +42,13 @@ export type LogicalExpr = {
   operator: Token;
 };
 
+export type CallExpr = {
+  type: "Call";
+  callee: Expr;
+  paren: Token;
+  arguments: Expr[];
+};
+
 export type Expr =
   | BinaryExpr
   | UnaryExpr
@@ -49,7 +56,8 @@ export type Expr =
   | GroupingExpr
   | VariableExpr
   | AssignExpr
-  | LogicalExpr;
+  | LogicalExpr
+  | CallExpr;
 
 export function createLogicalExpr(
   operator: Token,
@@ -111,5 +119,18 @@ export function createGroupingExpr(expr: Expr): GroupingExpr {
   return {
     type: "Group",
     expr,
+  };
+}
+
+export function createCallExpr(
+  callee: Expr,
+  paren: Token,
+  args: Expr[]
+): CallExpr {
+  return {
+    type: "Call",
+    callee,
+    paren,
+    arguments: args,
   };
 }

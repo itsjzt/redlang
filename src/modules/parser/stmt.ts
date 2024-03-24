@@ -35,13 +35,34 @@ export type WhileStmt = {
   body: Stmt;
 };
 
+export type FunctionStmt = {
+  type: "FunctionStmt";
+  name: Token;
+  params: Token[];
+  body: Stmt[];
+};
+
 export type Stmt =
   | ExprStmt
   | PrintStmt
   | VarStmt
   | BlockStmt
   | IfStmt
-  | WhileStmt;
+  | WhileStmt
+  | FunctionStmt;
+
+export function createFunctionStmt(
+  name: Token,
+  params: Token[],
+  body: Stmt[]
+): FunctionStmt {
+  return {
+    type: "FunctionStmt",
+    name,
+    params,
+    body,
+  };
+}
 
 export function createWhileStmt(condition: Expr, body: Stmt): WhileStmt {
   return {
