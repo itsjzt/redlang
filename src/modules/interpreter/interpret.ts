@@ -79,7 +79,7 @@ function evaluateReturn(stmt: ReturnStmt) {
 }
 
 function evaluateFunctionDeclaration(stmt: FunctionStmt): null {
-  let fn = new LoxFunction(stmt);
+  let fn = new LoxFunction(stmt, variableStore);
   variableStore.define(stmt.name.lexeme!, fn);
   return null;
 }

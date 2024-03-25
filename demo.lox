@@ -1,6 +1,12 @@
-// hello comment
-var a = 10;
-print a;
-print 10 + 2;
+var i = 0;
 
-10.0213 * 2839 + (21738 * 99);
+fun makeCounter() {
+  i = i + 1;
+  print i;
+  
+  return count;
+}
+
+var counter = makeCounter;
+counter(); // "1".
+counter(); // "2".

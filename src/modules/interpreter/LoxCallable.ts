@@ -42,9 +42,11 @@ export function createLoxCallable({
 
 export class LoxFunction implements LoxCallable {
   declaration: FunctionStmt;
+  closure: VariableStore;
 
-  constructor(declaration: FunctionStmt) {
+  constructor(declaration: FunctionStmt, closure: VariableStore) {
     this.declaration = declaration;
+    this.closure = closure;
   }
 
   arity(): number {
@@ -52,7 +54,7 @@ export class LoxFunction implements LoxCallable {
   }
 
   call(interpreter: Interpreter, args: any[]) {
-    let localStore = new VariableStore(interpreter.variableStore);
+    let localStore = new VariableStore(this.closure);
 
     // initialize the params
     this.declaration.params.forEach((param, index) => {
