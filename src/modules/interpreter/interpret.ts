@@ -210,7 +210,9 @@ function evaluateLogicalExpression(expr: LogicalExpr): any {
 }
 
 function evaluateAssignExpression(name: Token, value: Expr): any {
-  if (variableStore.contains(name)) {
+  const variableExists = variableStore.contains(name);
+
+  if (variableExists) {
     return variableStore.assign(name, evaluateExpression(value));
   }
 

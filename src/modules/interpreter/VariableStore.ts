@@ -11,9 +11,9 @@ export class VariableStore {
   }
 
   contains(name: Token): boolean {
-    const value = this.variables.get(name.lexeme!);
+    const variableExists = this.variables.has(name.lexeme!);
 
-    if (value) {
+    if (variableExists) {
       return true;
     }
 
@@ -41,7 +41,7 @@ export class VariableStore {
   get(name: Token): any | never {
     const value = this.variables.get(name.lexeme!);
 
-    if (value) {
+    if (value !== undefined) {
       return value;
     }
 
