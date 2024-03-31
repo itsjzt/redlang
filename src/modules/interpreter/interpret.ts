@@ -376,9 +376,9 @@ function isTruthy(value: any): boolean {
     return false;
   }
 
-  if (value === 0) {
-    return false;
-  }
+  // if (value === 0) {
+  //   return false;
+  // }
 
   // everything else is true
   return true;
