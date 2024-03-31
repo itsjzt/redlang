@@ -1,5 +1,4 @@
 import { Token } from "../scanner/token";
-import { ExprStmt, PrintStmt } from "./stmt";
 
 export type BinaryExpr = {
   type: "Binary";

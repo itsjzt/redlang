@@ -1,10 +1,10 @@
 import { Token } from "../scanner/token";
 import { Expr } from "./expr";
 
-export type PrintStmt = {
-  expression: Expr;
-  type: "PrintStmt";
-};
+// export type PrintStmt = {
+//   expression: Expr;
+//   type: "PrintStmt";
+// };
 
 export type ExprStmt = {
   expression: Expr;
@@ -24,21 +24,21 @@ export type BlockStmt = {
 
 export type ElseIf = {
   condition: Expr;
-  thenBranch: Stmt;
+  thenBranch: BlockStmt;
 };
 
 export type IfStmt = {
   type: "IfStmt";
   condition: Expr;
-  thenBranch: Stmt;
+  thenBranch: BlockStmt;
   elseIfs: ElseIf[];
-  elseBranch: Stmt | null;
+  elseBranch: BlockStmt | null;
 };
 
 export type WhileStmt = {
   type: "WhileStmt";
   condition: Expr;
-  body: Stmt;
+  body: BlockStmt;
 };
 
 export type FunctionStmt = {
@@ -56,7 +56,7 @@ export type ReturnStmt = {
 
 export type Stmt =
   | ExprStmt
-  | PrintStmt
+  // | PrintStmt
   | VarStmt
   | BlockStmt
   | IfStmt
@@ -88,7 +88,7 @@ export function createFunctionStmt(
   };
 }
 
-export function createWhileStmt(condition: Expr, body: Stmt): WhileStmt {
+export function createWhileStmt(condition: Expr, body: BlockStmt): WhileStmt {
   return {
     type: "WhileStmt",
     condition,
@@ -98,9 +98,9 @@ export function createWhileStmt(condition: Expr, body: Stmt): WhileStmt {
 
 export function createIfStmt(
   condition: Expr,
-  thenBranch: Stmt,
+  thenBranch: BlockStmt,
   elseIfs: ElseIf[] | null,
-  elseBranch: Stmt | null
+  elseBranch: BlockStmt | null
 ): IfStmt {
   return {
     type: "IfStmt",
@@ -111,7 +111,7 @@ export function createIfStmt(
   };
 }
 
-export function createElseIf(condition: Expr, thenBranch: Stmt): ElseIf {
+export function createElseIf(condition: Expr, thenBranch: BlockStmt): ElseIf {
   return {
     condition,
     thenBranch,
@@ -140,9 +140,9 @@ export function createExprStatement(expr: Expr): ExprStmt {
   };
 }
 
-export function createPrintStatement(expr: Expr): PrintStmt {
-  return {
-    expression: expr,
-    type: "PrintStmt",
-  };
-}
+// export function createPrintStatement(expr: Expr): PrintStmt {
+//   return {
+//     expression: expr,
+//     type: "PrintStmt",
+//   };
+// }

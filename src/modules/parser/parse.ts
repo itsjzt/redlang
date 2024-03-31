@@ -18,7 +18,7 @@ import {
   ExprStmt,
   FunctionStmt,
   IfStmt,
-  PrintStmt,
+  // PrintStmt,
   ReturnStmt,
   Stmt,
   VarStmt,
@@ -28,7 +28,7 @@ import {
   createExprStatement,
   createFunctionStmt,
   createIfStmt,
-  createPrintStatement,
+  // createPrintStatement,
   createReturnStmt,
   createVarStatement,
   createWhileStmt,
@@ -60,11 +60,11 @@ export function parse(tokens: Token[]) {
 
 function declaration(): Stmt | null {
   try {
-    if (match("FUN")) {
+    if (match("FUNCTION")) {
       return functionDeclaration("function");
     }
 
-    if (match("VAR")) {
+    if (match("VARIABLE")) {
       return varDeclaration();
     }
 
@@ -125,9 +125,9 @@ function statement(): Stmt {
     return whileStatement();
   }
 
-  if (match("PRINT")) {
-    return printStatement();
-  }
+  // if (match("PRINT")) {
+  //   return printStatement();
+  // }
 
   if (match("LEFT_BRACE")) {
     return createBlockStmt(block());
@@ -149,22 +149,19 @@ function returnStatement(): ReturnStmt {
 }
 
 function whileStatement(): WhileStmt {
-  consume("LEFT_PAREN", "Expect '(' after while.");
   let condition = expression();
-  consume("RIGHT_PAREN", "Expect ')' after while.");
-  let body: Stmt = statement();
+  consume("LEFT_BRACE", "Expect '}' after while.");
+  let body = createBlockStmt(block());
 
   return createWhileStmt(condition, body);
 }
 
 function ifStatement(): IfStmt {
-  consume("LEFT_PAREN", "Expect ')' after 'if'.");
-
   let condition = expression();
 
-  consume("RIGHT_PAREN", "Expect ')' after if condition.");
+  consume("LEFT_BRACE", "Expect '{' after if condition.");
 
-  let thenBranch = statement();
+  let thenBranch = createBlockStmt(block());
   let elseBranch: Stmt | null = null;
   let elseIfs: ElseIf[] = [];
 
@@ -173,13 +170,16 @@ function ifStatement(): IfStmt {
     consume("IF", "Expected else");
 
     let condition = expression();
-    let thenBranch = statement();
+    consume("LEFT_BRACE", "Expect '{' after else if condition.");
+
+    let thenBranch = createBlockStmt(block());
 
     elseIfs.push(createElseIf(condition, thenBranch));
   }
 
   if (match("ELSE")) {
-    elseBranch = statement();
+    consume("LEFT_BRACE", "Expect '{' after else condition.");
+    elseBranch = createBlockStmt(block());
   }
 
   return createIfStmt(condition, thenBranch, elseIfs, elseBranch);
@@ -197,12 +197,12 @@ function block(): Stmt[] {
   return statements;
 }
 
-function printStatement(): PrintStmt {
-  let value = expression();
-  consume("SEMICOLON", "Expect ';' after value");
+// function printStatement(): PrintStmt {
+//   let value = expression();
+//   consume("SEMICOLON", "Expect ';' after value");
 
-  return createPrintStatement(value);
-}
+//   return createPrintStatement(value);
+// }
 
 function expressionStatement(): ExprStmt {
   let expr = expression();
@@ -448,12 +448,12 @@ function synchronize() {
     if (previous().type == "SEMICOLON") return;
 
     switch (peek().type) {
-      case "CLASS":
-      case "FUN":
-      case "VAR":
+      // case "CLASS":
+      case "FUNCTION":
+      case "VARIABLE":
       case "IF":
       case "WHILE":
-      case "PRINT":
+      // case "PRINT":
       case "RETURN":
         return;
     }

@@ -42,6 +42,17 @@ function initGlobalFunctions() {
       },
     })
   );
+  variableStore.define(
+    "print",
+    createLoxCallable({
+      arity() {
+        return 1;
+      },
+      call(i, args) {
+        console.log(args[0]);
+      },
+    })
+  );
 }
 
 function evaluateStmt(stmt: Stmt): null {
@@ -49,9 +60,9 @@ function evaluateStmt(stmt: Stmt): null {
     case "ExprStmt":
       evaluateExpression(stmt.expression);
       break;
-    case "PrintStmt":
-      evaluatePrint(stmt.expression);
-      break;
+    // case "PrintStmt":
+    //   evaluatePrint(stmt.expression);
+    //   break;
     case "VarStmt":
       evaluateDeclaration(stmt);
       break;
