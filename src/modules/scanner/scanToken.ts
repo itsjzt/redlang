@@ -125,6 +125,24 @@ export function scanToken({
       addToken(isDoubleCharToken ? "GREATER_EQUAL" : "GREATER");
       return genReport(isDoubleCharToken ? 2 : 1);
     }
+    case "&":
+      if (matchNextChar("&", source)) {
+        addToken("AND");
+        return genReport(2);
+      }
+      throw throwScanningError(
+        currentLine,
+        "Unexpected Character " + currentChar
+      );
+    case "|":
+      if (matchNextChar("|", source)) {
+        addToken("OR");
+        return genReport(2);
+      }
+      throw throwScanningError(
+        currentLine,
+        "Unexpected Character " + currentChar
+      );
     case "/": {
       if (matchNextChar("/", source)) {
         const offset = consumeComment(source);
@@ -140,16 +158,15 @@ export function scanToken({
         const offset = consumeIdentifier(source);
         const lexeme = source.slice(0, offset);
 
-        if (lexeme in reservedKeywords) {
-          // @ts-ignore
-          addToken(reservedKeywords[lexeme], offset);
+        if (reservedKeywords.has(lexeme)) {
+          addToken(reservedKeywords.get(lexeme)!, offset);
         } else {
           addToken("IDENTIFIER", offset);
         }
 
         return genReport(offset);
       }
-      throwScanningError(currentLine, "Unexpected Character");
+      throwScanningError(currentLine, "Unexpected Character " + currentChar);
       return genReport();
     }
   }

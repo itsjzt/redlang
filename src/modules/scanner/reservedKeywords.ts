@@ -1,38 +1,38 @@
 import { TokenType } from "./tokenTypes";
 
-export type Keyword =
-  | "and"
-  | "class"
-  | "else"
-  | "false"
-  | "for"
-  | "fun"
-  | "if"
-  | "nil"
-  | "or"
-  | "print"
-  | "return"
-  | "super"
-  | "this"
-  | "true"
-  | "var"
-  | "while";
+// export type Keyword =
+//   | "&&"
+//   | "class"
+//   | "else"
+//   | "false"
+//   | "for"
+//   | "function"
+//   | "if"
+//   | "nil"
+//   | "||"
+//   | "print"
+//   | "return"
+//   | "super"
+//   | "this"
+//   | "true"
+//   | "var"
+//   | "while";
 
-export const reservedKeywords: Record<Keyword, TokenType> = {
-  and: "AND",
-  class: "CLASS",
-  else: "ELSE",
-  false: "FALSE",
-  for: "FOR",
-  fun: "FUN",
-  if: "IF",
-  nil: "NIL",
-  or: "OR",
-  print: "PRINT",
-  return: "RETURN",
-  super: "SUPER",
-  this: "THIS",
-  true: "TRUE",
-  var: "VAR",
-  while: "WHILE",
-};
+export const reservedKeywords: Map<string, TokenType> = new Map();
+
+reservedKeywords.set("&&", "AND");
+reservedKeywords.set("class", "CLASS");
+reservedKeywords.set("else", "ELSE");
+reservedKeywords.set("false", "FALSE");
+reservedKeywords.set("for", "FOR");
+reservedKeywords.set("function", "FUN");
+reservedKeywords.set("if", "IF");
+reservedKeywords.set("nil", "NIL");
+reservedKeywords.set("||", "OR");
+reservedKeywords.set("print", "PRINT");
+reservedKeywords.set("return", "RETURN");
+reservedKeywords.set("super", "SUPER");
+reservedKeywords.set("this", "THIS");
+reservedKeywords.set("true", "TRUE");
+reservedKeywords.set("var", "VAR");
+reservedKeywords.set("while", "WHILE");
