@@ -7,7 +7,13 @@ import {
   UnaryExpr,
   VariableExpr,
 } from "../parser/expr";
-import { FunctionStmt, ReturnStmt, Stmt, VarStmt } from "../parser/stmt";
+import {
+  ElseIf,
+  FunctionStmt,
+  ReturnStmt,
+  Stmt,
+  VarStmt,
+} from "../parser/stmt";
 import { Token } from "../scanner/token";
 import { LoxFunction, createLoxCallable, isLoxCallable } from "./LoxCallable";
 import { VariableStore } from "./VariableStore";
@@ -53,7 +59,12 @@ function evaluateStmt(stmt: Stmt): null {
       evaluateBlock(stmt.statements, new VariableStore(variableStore));
       break;
     case "IfStmt":
-      evaluateIf(stmt.condition, stmt.thenBranch, stmt.elseBranch);
+      evaluateIf(
+        stmt.condition,
+        stmt.thenBranch,
+        stmt.elseIfs,
+        stmt.elseBranch
+      );
       break;
     case "WhileStmt":
       evaluateWhile(stmt.condition, stmt.body);
@@ -94,12 +105,26 @@ function evaluateWhile(condition: Expr, body: Stmt): null {
 function evaluateIf(
   condition: Expr,
   thenBranch: Stmt,
+  elseIfs: ElseIf[],
   elseBranch: Stmt | null
 ): null {
+  let isExecuted = false;
   if (isTruthy(evaluateExpression(condition))) {
     evaluateStmt(thenBranch);
-  } else if (elseBranch !== null) {
+    isExecuted = true;
+  }
+
+  for (let i = 0; !isExecuted && i < elseIfs.length; i++) {
+    const elseIf = elseIfs[i];
+    if (isTruthy(evaluateExpression(elseIf.condition))) {
+      evaluateStmt(elseIf.thenBranch);
+      isExecuted = true;
+    }
+  }
+
+  if (!isExecuted && elseBranch !== null) {
     evaluateStmt(elseBranch);
+    isExecuted = true;
   }
 
   return null;
@@ -257,6 +282,9 @@ function evaluateBinaryOperator(expr: BinaryExpr): null | any {
     case "STAR":
       checkOperandsAreNumber(expr.operator, left, right);
       return left * right;
+    case "MODULUS":
+      checkOperandsAreNumber(expr.operator, left, right);
+      return left % right;
     case "SLASH":
       checkOperandsAreNumber(expr.operator, left, right);
       return left / right;

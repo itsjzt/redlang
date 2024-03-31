@@ -14,6 +14,7 @@ import {
   createVariableExpr,
 } from "./expr";
 import {
+  ElseIf,
   ExprStmt,
   FunctionStmt,
   IfStmt,
@@ -23,6 +24,7 @@ import {
   VarStmt,
   WhileStmt,
   createBlockStmt,
+  createElseIf,
   createExprStatement,
   createFunctionStmt,
   createIfStmt,
@@ -164,12 +166,23 @@ function ifStatement(): IfStmt {
 
   let thenBranch = statement();
   let elseBranch: Stmt | null = null;
+  let elseIfs: ElseIf[] = [];
+
+  while (check("ELSE") && checkNext("IF")) {
+    consume("ELSE", "Expected else");
+    consume("IF", "Expected else");
+
+    let condition = expression();
+    let thenBranch = statement();
+
+    elseIfs.push(createElseIf(condition, thenBranch));
+  }
 
   if (match("ELSE")) {
     elseBranch = statement();
   }
 
-  return createIfStmt(condition, thenBranch, elseBranch);
+  return createIfStmt(condition, thenBranch, elseIfs, elseBranch);
 }
 
 function block(): Stmt[] {
@@ -285,7 +298,7 @@ function term(): Expr {
 function factor(): Expr {
   let expr = unary();
 
-  while (match("STAR", "SLASH")) {
+  while (match("STAR", "SLASH", "MODULUS")) {
     let operator = previous();
     let right = unary();
     expr = createBinaryExpr(operator, expr, right);
@@ -339,9 +352,11 @@ function primary(): Expr {
   if (match("NIL")) {
     return createLiteralExpr(null);
   }
+
   if (match("FALSE")) {
     return createLiteralExpr(false);
   }
+
   if (match("TRUE")) {
     return createLiteralExpr(true);
   }
@@ -390,6 +405,14 @@ function check(type: TokenType) {
   return peek().type === type;
 }
 
+function checkNext(type: TokenType) {
+  if (isNextAtEnd()) {
+    return false;
+  }
+
+  return peekNext().type === type;
+}
+
 function advance() {
   if (!isAtEnd()) {
     parserState.currentTokenIndex++;
@@ -402,8 +425,16 @@ function isAtEnd() {
   return peek().type === "EOF";
 }
 
+function isNextAtEnd() {
+  return peekNext().type === "EOF";
+}
+
 function peek(): Token {
   return parserState.tokens[parserState.currentTokenIndex];
+}
+
+function peekNext(): Token {
+  return parserState.tokens[parserState.currentTokenIndex + 1];
 }
 
 function previous(): Token {

@@ -22,10 +22,16 @@ export type BlockStmt = {
   statements: Stmt[];
 };
 
+export type ElseIf = {
+  condition: Expr;
+  thenBranch: Stmt;
+};
+
 export type IfStmt = {
   type: "IfStmt";
   condition: Expr;
   thenBranch: Stmt;
+  elseIfs: ElseIf[];
   elseBranch: Stmt | null;
 };
 
@@ -93,13 +99,22 @@ export function createWhileStmt(condition: Expr, body: Stmt): WhileStmt {
 export function createIfStmt(
   condition: Expr,
   thenBranch: Stmt,
+  elseIfs: ElseIf[] | null,
   elseBranch: Stmt | null
 ): IfStmt {
   return {
     type: "IfStmt",
     condition,
+    elseIfs: elseIfs || [],
     thenBranch,
     elseBranch,
+  };
+}
+
+export function createElseIf(condition: Expr, thenBranch: Stmt): ElseIf {
+  return {
+    condition,
+    thenBranch,
   };
 }
 

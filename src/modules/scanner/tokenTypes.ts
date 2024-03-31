@@ -11,6 +11,7 @@ export type TokenType =
   | "SEMICOLON"
   | "SLASH"
   | "STAR"
+  | "MODULUS"
   // One or two character tokens.
   | "BANG"
   | "BANG_EQUAL"

@@ -49,6 +49,10 @@ export function scanToken({
     case "+":
       addToken("PLUS");
       return genReport();
+    case "%": {
+      addToken("MODULUS");
+      return genReport();
+    }
     case ";":
       addToken("SEMICOLON");
       return genReport();
@@ -136,7 +140,8 @@ export function scanToken({
         const offset = consumeIdentifier(source);
         const lexeme = source.slice(0, offset);
 
-        if (reservedKeywords[lexeme]) {
+        if (lexeme in reservedKeywords) {
+          // @ts-ignore
           addToken(reservedKeywords[lexeme], offset);
         } else {
           addToken("IDENTIFIER", offset);
