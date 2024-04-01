@@ -22,6 +22,16 @@ export type BlockStmt = {
   statements: Stmt[];
 };
 
+export type BreakStmt = {
+  type: "BreakStmt";
+  // TODO: add label
+};
+
+export type ContinueStmt = {
+  type: "ContinueStmt";
+  // TODO: add label
+};
+
 export type ElseIf = {
   condition: Expr;
   thenBranch: BlockStmt;
@@ -56,13 +66,26 @@ export type ReturnStmt = {
 
 export type Stmt =
   | ExprStmt
-  // | PrintStmt
   | VarStmt
   | BlockStmt
   | IfStmt
   | WhileStmt
   | FunctionStmt
-  | ReturnStmt;
+  | ReturnStmt
+  | BreakStmt
+  | ContinueStmt;
+
+export function createBreakStmt(): BreakStmt {
+  return {
+    type: "BreakStmt",
+  };
+}
+
+export function createContinueStmt(): ContinueStmt {
+  return {
+    type: "ContinueStmt",
+  };
+}
 
 export function createReturnStmt(
   keyword: Token,

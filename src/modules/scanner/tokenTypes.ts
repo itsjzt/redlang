@@ -31,7 +31,7 @@ export type TokenType =
   | "ELSE"
   | "FALSE"
   | "FUNCTION"
-  | "FOR"
+  // | "FOR"
   | "IF"
   | "NIL"
   | "OR"
@@ -42,5 +42,7 @@ export type TokenType =
   | "TRUE"
   | "VARIABLE"
   | "WHILE"
+  | "BREAK"
+  | "CONTINUE"
   // End of File
   | "EOF";

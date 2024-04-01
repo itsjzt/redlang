@@ -43,6 +43,7 @@ function run(source: string) {
     return;
   }
 
+  // console.log(JSON.stringify(ast, null, 2));
   interpretWithCatch(ast);
 }
 

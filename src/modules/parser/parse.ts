@@ -14,6 +14,8 @@ import {
   createVariableExpr,
 } from "./expr";
 import {
+  BreakStmt,
+  ContinueStmt,
   ElseIf,
   ExprStmt,
   FunctionStmt,
@@ -24,6 +26,8 @@ import {
   VarStmt,
   WhileStmt,
   createBlockStmt,
+  createBreakStmt,
+  createContinueStmt,
   createElseIf,
   createExprStatement,
   createFunctionStmt,
@@ -125,9 +129,13 @@ function statement(): Stmt {
     return whileStatement();
   }
 
-  // if (match("PRINT")) {
-  //   return printStatement();
-  // }
+  if (match("BREAK")) {
+    return breakStatement();
+  }
+
+  if (match("CONTINUE")) {
+    return continueStatement();
+  }
 
   if (match("LEFT_BRACE")) {
     return createBlockStmt(block());
@@ -197,12 +205,17 @@ function block(): Stmt[] {
   return statements;
 }
 
-// function printStatement(): PrintStmt {
-//   let value = expression();
-//   consume("SEMICOLON", "Expect ';' after value");
+function breakStatement(): BreakStmt {
+  consume("SEMICOLON", "Expect ';' after value");
 
-//   return createPrintStatement(value);
-// }
+  return createBreakStmt();
+}
+
+function continueStatement(): ContinueStmt {
+  consume("SEMICOLON", "Expect ';' after value");
+
+  return createContinueStmt();
+}
 
 function expressionStatement(): ExprStmt {
   let expr = expression();

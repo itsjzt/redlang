@@ -98,36 +98,50 @@ export function scanToken({
     case "8":
     case "9": {
       const charsConsumed = consumeDigit(source);
+
       addToken(
         "NUMBER",
         charsConsumed,
-        parseFloat(source.slice(0, charsConsumed))
+        // replace all underscores
+        parseFloat(source.slice(0, charsConsumed).replaceAll("_", ""))
       );
       return genReport(charsConsumed);
     }
     case "!": {
       const isDoubleCharToken = matchNextChar("=", source);
-      addToken(isDoubleCharToken ? "BANG_EQUAL" : "BANG");
+      addToken(
+        isDoubleCharToken ? "BANG_EQUAL" : "BANG",
+        isDoubleCharToken ? 2 : 1
+      );
       return genReport(isDoubleCharToken ? 2 : 1);
     }
     case "=": {
       const isDoubleCharToken = matchNextChar("=", source);
-      addToken(isDoubleCharToken ? "EQUAL_EQUAL" : "EQUAL");
+      addToken(
+        isDoubleCharToken ? "EQUAL_EQUAL" : "EQUAL",
+        isDoubleCharToken ? 2 : 1
+      );
       return genReport(isDoubleCharToken ? 2 : 1);
     }
     case "<": {
       const isDoubleCharToken = matchNextChar("=", source);
-      addToken(isDoubleCharToken ? "LESS_EQUAL" : "LESS");
+      addToken(
+        isDoubleCharToken ? "LESS_EQUAL" : "LESS",
+        isDoubleCharToken ? 2 : 1
+      );
       return genReport(isDoubleCharToken ? 2 : 1);
     }
     case ">": {
       const isDoubleCharToken = matchNextChar("=", source);
-      addToken(isDoubleCharToken ? "GREATER_EQUAL" : "GREATER");
+      addToken(
+        isDoubleCharToken ? "GREATER_EQUAL" : "GREATER",
+        isDoubleCharToken ? 2 : 1
+      );
       return genReport(isDoubleCharToken ? 2 : 1);
     }
     case "&":
       if (matchNextChar("&", source)) {
-        addToken("AND");
+        addToken("AND", 2);
         return genReport(2);
       }
       throw throwScanningError(
@@ -136,7 +150,7 @@ export function scanToken({
       );
     case "|":
       if (matchNextChar("|", source)) {
-        addToken("OR");
+        addToken("OR", 2);
         return genReport(2);
       }
       throw throwScanningError(

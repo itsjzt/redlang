@@ -10,6 +10,12 @@ export function consumeDigit(source: string): number {
     }
 
     const nextChar = getCharAtIndex(source, i + 1);
+
+    // allow underscores in number
+    if (currentChar === "_" && nextChar && numberChars.includes(nextChar)) {
+      continue;
+    }
+
     if (currentChar === "." && nextChar && numberChars.includes(nextChar)) {
       continue;
     }
@@ -22,7 +28,7 @@ export function consumeDigit(source: string): number {
 
 function getCharAtIndex(source: string, index: number) {
   if (source.length > index + 1) {
-    return source[1];
+    return source[index];
   }
 
   return null;

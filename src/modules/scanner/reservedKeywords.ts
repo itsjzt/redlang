@@ -20,15 +20,15 @@ import { TokenType } from "./tokenTypes";
 
 export const reservedKeywords: Map<string, TokenType> = new Map();
 
-reservedKeywords.set("&&", "AND");
 // reservedKeywords.set("class", "CLASS");
 reservedKeywords.set("else", "ELSE");
 reservedKeywords.set("false", "FALSE");
-reservedKeywords.set("for", "FOR");
+// reservedKeywords.set("for", "FOR");
+reservedKeywords.set("break", "BREAK");
+reservedKeywords.set("continue", "CONTINUE");
 reservedKeywords.set("fn", "FUNCTION");
 reservedKeywords.set("if", "IF");
 reservedKeywords.set("nil", "NIL");
-reservedKeywords.set("||", "OR");
 // reservedKeywords.set("print", "PRINT");
 reservedKeywords.set("return", "RETURN");
 // reservedKeywords.set("super", "SUPER");

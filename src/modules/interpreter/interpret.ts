@@ -69,6 +69,10 @@ function evaluateStmt(stmt: Stmt): null {
     case "BlockStmt":
       evaluateBlock(stmt.statements, new VariableStore(variableStore));
       break;
+    case "BreakStmt":
+      throw { type: "break" };
+    case "ContinueStmt":
+      throw { type: "continue" };
     case "IfStmt":
       evaluateIf(
         stmt.condition,
@@ -108,7 +112,19 @@ function evaluateFunctionDeclaration(stmt: FunctionStmt): null {
 
 function evaluateWhile(condition: Expr, body: Stmt): null {
   while (isTruthy(evaluateExpression(condition))) {
-    evaluateStmt(body);
+    try {
+      evaluateStmt(body);
+    } catch (e: unknown) {
+      if (e && typeof e === "object" && "type" in e && e.type === "continue") {
+        continue;
+      }
+
+      if (e && typeof e === "object" && "type" in e && e.type === "break") {
+        break;
+      }
+
+      throw e;
+    }
   }
   return null;
 }
