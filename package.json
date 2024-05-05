@@ -1,5 +1,5 @@
 {
-  "name": "lox",
+  "name": "redlang",
   "private": true,
   "description": "learning to make interpreted programming language,",
   "main": "index.js",

@@ -1,4 +1,4 @@
-# lox
+# Redlang
 
 learning to make interpreted programming language,
 
@@ -8,6 +8,18 @@ learning to make interpreted programming language,
 - use special function to parse keywords of language
 - keep an index of line column and line number in scanLine
 - use an error reporting interface
+
+## Language Design
+
+- Like Javascript
+- Without
+  - Type coercion (operations can only occur in same type)
+  - this meaning what it should mean
+  - Classes
+  - switch with automatic break and fallthrough keyword
+  - Block scoping and shouldn't be able to use variable before assignment
+  - Standard Library
+  -
 
 ## Things needed to do now
 

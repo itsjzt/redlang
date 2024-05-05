@@ -11,7 +11,7 @@ async function main() {
   const commandTrimmed = commandOrFile?.trim();
 
   if (commandTrimmed === "--help") {
-    console.log("Usage: lox [script]");
+    console.log("Usage: red [script]");
     return process.exit(64);
   }
 
