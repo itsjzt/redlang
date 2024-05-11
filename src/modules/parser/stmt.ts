@@ -15,6 +15,8 @@ export type VarStmt = {
   type: "VarStmt";
   initializer: Expr | null;
   name: Token;
+  staticType: "INTEGER" | "FLOAT" | "STRING" | "BOOLEAN" | "CUSTOM";
+  customTypeName?: string;
 };
 
 export type BlockStmt = {
@@ -54,7 +56,7 @@ export type WhileStmt = {
 export type FunctionStmt = {
   type: "FunctionStmt";
   name: Token;
-  params: Token[];
+  params: Param[];
   body: Stmt[];
 };
 
@@ -98,9 +100,15 @@ export function createReturnStmt(
   };
 }
 
+export interface Param {
+  token: Token;
+  staticType: VarStmt["staticType"];
+  customStaticType?: string;
+}
+
 export function createFunctionStmt(
   name: Token,
-  params: Token[],
+  params: Param[],
   body: Stmt[]
 ): FunctionStmt {
   return {
@@ -148,10 +156,16 @@ export function createBlockStmt(statements: Stmt[]): BlockStmt {
   };
 }
 
-export function createVarStatement(name: Token, expr: Expr | null): VarStmt {
+export function createVarStatement(
+  name: Token,
+  expr: Expr | null,
+  staticType: VarStmt["staticType"]
+): VarStmt {
   return {
     initializer: expr ?? null,
     name: name,
+    staticType,
+    customTypeName: "",
     type: "VarStmt",
   };
 }

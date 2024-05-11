@@ -59,7 +59,7 @@ export class LoxFunction implements LoxCallable {
     // initialize the params
     this.declaration.params.forEach((param, index) => {
       // TODO: we can support default values here
-      localStore.define(param.lexeme!, args[index]);
+      localStore.define(param.token.lexeme!, args[index]);
     });
 
     try {

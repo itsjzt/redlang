@@ -25,6 +25,9 @@ export function scanToken({
   }
 
   switch (currentChar) {
+    case ":":
+      addToken("COLON");
+      return genReport();
     case "(":
       addToken("LEFT_PAREN");
       return genReport();

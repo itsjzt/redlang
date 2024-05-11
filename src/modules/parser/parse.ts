@@ -20,6 +20,7 @@ import {
   ExprStmt,
   FunctionStmt,
   IfStmt,
+  Param,
   // PrintStmt,
   ReturnStmt,
   Stmt,
@@ -53,7 +54,7 @@ export function parse(tokens: Token[]) {
   let statements: Stmt[] = [];
 
   while (!isAtEnd()) {
-    let stmt = declaration();
+    let stmt = fnDeclarations();
     if (stmt) {
       statements.push(stmt);
     }
@@ -62,28 +63,32 @@ export function parse(tokens: Token[]) {
   return statements;
 }
 
-function declaration(): Stmt | null {
+function fnDeclarations() {
   try {
     if (match("FUNCTION")) {
       return functionDeclaration("function");
     }
 
-    if (match("VARIABLE")) {
-      return varDeclaration();
-    }
-
-    return statement();
+    return declaration();
   } catch (e) {
     synchronize();
     return null;
   }
 }
 
+function declaration(): Stmt | null {
+  if (match("VARIABLE")) {
+    return varDeclaration();
+  }
+
+  return statement();
+}
+
 function functionDeclaration(kind: string): FunctionStmt {
   let name = consume("IDENTIFIER", `Expect ${kind} name.`);
   consume("LEFT_PAREN", `Expect '(' after ${kind} name`);
 
-  let params: Token[] = [];
+  let params: Param[] = [];
 
   if (!check("RIGHT_PAREN")) {
     do {
@@ -91,11 +96,26 @@ function functionDeclaration(kind: string): FunctionStmt {
         throwParsingError(peek(), "Can't have more than 255 parameters");
       }
 
-      params.push(consume("IDENTIFIER", "Expect parameter name."));
+      let token = consume("IDENTIFIER", "Expect parameter name.");
+      let staticType = typeDefinition(
+        "Expected ':' after parameter name",
+        "Expected variable type"
+      );
+
+      params.push({ staticType: staticType, token });
     } while (match("COMMA"));
   }
 
   consume("RIGHT_PAREN", "Expect ')' after parameters");
+
+  // optional function return type
+  if (match("COLON")) {
+    typeDefinition(
+      "Expected ':' after function name",
+      "Expected function return type",
+      false
+    );
+  }
 
   consume("LEFT_BRACE", `Expect '{' before ${kind} body.`);
   let body = block();
@@ -103,9 +123,48 @@ function functionDeclaration(kind: string): FunctionStmt {
   return createFunctionStmt(name, params, body);
 }
 
+function typeDefinition(
+  colonErrorMessage: string,
+  variableErrorMessage: string,
+  shouldCheckColon: boolean = true
+) {
+  let staticType: VarStmt["staticType"];
+
+  if (shouldCheckColon) {
+    consume("COLON", colonErrorMessage);
+  }
+
+  switch (peek().type) {
+    case "INTEGER":
+      staticType = "INTEGER";
+      advance();
+      break;
+    case "BOOLEAN":
+      staticType = "BOOLEAN";
+      advance();
+      break;
+    case "STRING":
+      staticType = "STRING";
+      advance();
+      break;
+    case "FLOAT":
+      staticType = "FLOAT";
+      advance();
+      break;
+    default:
+      throw throwParsingError(peek(), variableErrorMessage);
+  }
+
+  return staticType;
+}
+
 function varDeclaration(): VarStmt {
   let name = consume("IDENTIFIER", "Expect variable name");
   let initializer: Expr | null = null;
+  let staticType = typeDefinition(
+    "Expected ':' after variable name",
+    "Expected variable type"
+  );
 
   if (match("EQUAL")) {
     initializer = expression();
@@ -113,7 +172,7 @@ function varDeclaration(): VarStmt {
 
   consume("SEMICOLON", "Expect ';' after declaration.");
 
-  return createVarStatement(name, initializer);
+  return createVarStatement(name, initializer, staticType);
 }
 
 function statement(): Stmt {

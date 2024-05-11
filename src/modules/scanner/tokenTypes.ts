@@ -11,6 +11,7 @@ export type TokenType =
   | "SEMICOLON"
   | "SLASH"
   | "STAR"
+  | "COLON"
   | "MODULUS"
   // One or two character tokens.
   | "BANG"
@@ -44,5 +45,10 @@ export type TokenType =
   | "WHILE"
   | "BREAK"
   | "CONTINUE"
+  // types
+  | "INTEGER"
+  | "FLOAT"
+  | "BOOLEAN"
+  | "STRING"
   // End of File
   | "EOF";
